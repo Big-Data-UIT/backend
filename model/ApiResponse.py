@@ -1,4 +1,4 @@
-def make_api_reponse(status, data, message, **kwargs):
+def make_api_response(status, data, message, **kwargs):
     resObj = {
         "status": status,
         "data": [data],

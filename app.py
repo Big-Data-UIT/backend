@@ -1,7 +1,7 @@
 from flask import Flask, request, Response, jsonify, make_response
 import os
 from pymongo import MongoClient
-from model.ApiResponse import make_api_reponse
+from model.ApiResponse import make_api_response
 # from flask_socketio import SocketIO, emit
 # from kafka import KafkaConsumer, TopicPartition
 
@@ -25,17 +25,32 @@ def default():
 def getMovieList():
     coll = db["movies_new"]
     limit = int(request.args.get("limit")) if (
-        request.args.get("limit")) else 0
+        request.args.get("limit")) else 100
     offset = int(request.args.get("offset")) if (
         request.args.get("offset")) else 0
     resultCursor = coll.find(
         {}, {'_id': False}).skip(offset).limit(limit)
-    totalDocument = resultCursor.count()
+
     listResult = []
     for doc in resultCursor:
         listResult.append(doc)
-    result = make_api_reponse(
+    totalDocument = len(listResult)
+    result = make_api_response(
         "OK", listResult, "Lay danh sach phim thanh cong", total=totalDocument)
+    return jsonify(result)
+
+
+@ app.route("/movie/ratings", methods=["GET"])
+def getMovieRatings():
+    coll = db["ratings"]
+    movieId = request.args.get("movieId")
+    params = {
+        "movieId": movieId
+    }
+    result = list(coll.find({"movieId": movieId}, {"_id": False}))
+    total = len(result)
+    result = make_api_response(
+        "OK", result, "Lay danh sach danh gia thanh cong", total=total)
     return jsonify(result)
 
 
