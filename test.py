@@ -1,7 +1,5 @@
-from pyspark.sql import SparkSession
-from import_mongo import importDataToMongo
+# from pyspark.sql import SparkSession
+# from import_mongo import importDataToMongo
 
 
-importDataToMongo()
-
-
+# importDataToMongo()

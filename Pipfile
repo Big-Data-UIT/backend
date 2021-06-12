@@ -7,6 +7,9 @@ name = "pypi"
 flask = "*"
 pyspark = "*"
 pymongo = {extras = ["srv"], version = "*"}
+kafka = "*"
+flask-socketio = "*"
+pandas = "*"
 
 [dev-packages]
 autopep8 = "*"
