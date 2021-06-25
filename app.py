@@ -85,10 +85,12 @@ def getUnratedUserByUserId():
 #     return make_api_response(200, [], "OK")
 
 
-# @app.route("/user/ratings", methods=["GET"])
-# def getUserRatingHistory():
-#     coll = db[COL_RATINGS]
-#     data = coll.find({})
+@app.route("/ratings-avg", methods=["GET"])
+def getUserRatingHistory():
+    coll = db[COL_RATINGS]
+    data = list(coll.aggregate([{"$group": {"_id": "$movieId", "averageRating": {
+                "$avg": "$rating"}}}, {"$sort": {"averageRating": -1}}]))
+    return make_api_response(200, data, "OK", total=len(data))
 
 
 @ app.route("/movie/ratings", methods=["GET", "POST"])
