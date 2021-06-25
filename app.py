@@ -4,7 +4,7 @@ import json
 from pymongo import MongoClient
 from model.ApiResponse import make_api_response
 from flask_socketio import SocketIO, emit, send
-
+import time
 from pyspark.sql import SparkSession
 from CFAlgo import CF
 from import_mongo import readFromMongo
@@ -70,8 +70,12 @@ def getMovieRatings():
             if key not in params:
                 return make_api_response(403, [], "body invalid")
         body["userId"] = str(body["userId"])
+        body['timestamp'] = round(time.time())
         coll.insert_one(body)
+
         return make_api_response(200, [], "OK")
+
+# @app.route("/user/ratings")
 
 
 @app.route("/user/recommend", methods=["GET"])
