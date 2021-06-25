@@ -1,13 +1,20 @@
 from pyspark.sql import SparkSession
 
-def importDataToMongo():
-    spark = SparkSession.builder.appName("SimpleApp")\
-                    .config("spark.mongodb.input.uri","mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
-                    .config("spark.mongodb.output.uri","mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
-                    .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.0")\
-                    .getOrCreate()
-    df = spark.read.option("header",True).csv("df.csv")
+MONGO_URI = "mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens"
+
+
+def importDataToMongo(data, spark):
+    df = spark.read.option("header", True).csv("df.csv")
     df.printSchema()
-    df.write.format("mongo").mode("append").save()
-            # .option("spark.mongodb.input.uri","mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
-            
+    # df.write.format("mongo").mode("append").save()
+
+
+def readFromMongo(collection, params, spark):
+    df = spark.read.format("mongo").option(
+        "uri", MONGO_URI+"."+collection).load()
+    df.printSchema()
+
+
+def writeToMongo(spark, data, collection):
+    if data and spark and collection:
+        data.write.format("mongo").option(MONGO_URI+".recommendation").save()
