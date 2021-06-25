@@ -19,6 +19,9 @@ db = mongoClient.movielens
 BOOTSTRAP_SERVERS = "localhost:9092"
 TOPIC_NAME = "movies"
 
+
+COL_MOVIES = "movies_new"
+COL_RATINGS = "ratings_copy"
 # spark = SparkSession.builder.appName("SimpleApp")\
 #     .config("spark.mongodb.input.uri", "mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
 #     .config("spark.mongodb.output.uri", "mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
@@ -33,7 +36,7 @@ def default():
 
 @app.route("/movie", methods=["GET"])
 def getMovieList():
-    coll = db["movies_new"]
+    coll = db[COL_MOVIES]
     limit = int(request.args.get("limit")) if (
         request.args.get("limit")) else 100
     offset = int(request.args.get("offset")) if (
@@ -52,8 +55,8 @@ def getMovieList():
 
 @app.route("/unrated-movie", methods=["GET"])
 def getUnratedUserByUserId():
-    coll = db["movies_new"]
-    rating_col = db["ratings"]
+    coll = db[COL_MOVIES]
+    rating_col = db[COL_RATINGS]
     limit = int(request.args.get("limit")) if (
         request.args.get("limit")) else 100
     offset = int(request.args.get("offset")) if (
@@ -72,27 +75,27 @@ def getUnratedUserByUserId():
             401, result, "userId không hợp lệ")
 
 
-@ app.route("/convert", methods=["GET"])
-def convert():
-    coll = db["ratings_copy"]
-    data = coll.find({})
-    for item in data:
-        item["rating"] = float(item["rating"])
-        coll.save(item)
-    return make_api_response(200, [], "OK")
+# @ app.route("/convert", methods=["GET"])
+# def convert():
+#     coll = db[COL_RATINGS]
+#     data = coll.find({})
+#     for item in data:
+#         item["rating"] = float(item["rating"])
+#         coll.save(item)
+#     return make_api_response(200, [], "OK")
 
 
 # @app.route("/user/ratings", methods=["GET"])
 # def getUserRatingHistory():
-#     coll = db["ratings"]
+#     coll = db[COL_RATINGS]
 #     data = coll.find({})
 
 
 @ app.route("/movie/ratings", methods=["GET", "POST"])
 def getMovieRatings():
-    coll = db["ratings"]
+    coll = db[COL_RATINGS]
     if (request.method == "GET"):
-        movieId = request.args.get("movieId")
+        movieId = float(request.args.get("movieId"))
         params = {
             "movieId": movieId
         }
@@ -118,7 +121,7 @@ def getMovieRatings():
 
 @app.route("/user/recommend", methods=["GET"])
 def getUserRecommendation():
-    readFromMongo("ratings", {}, spark)
+    readFromMongo(COL_RATINGS, {}, spark)
     return make_api_response(200, [], "OK")
 
 
@@ -127,7 +130,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 @app.route("/ratings", methods=["GET"])
 def getAllRatings():
-    coll = db["ratings"]
+    coll = db[COL_RATINGS]
     limit = int(request.args.get("limit")) if "limit" in request.args else None
     result = list(coll.find({}, {"_id": False}).limit(limit))
     return make_api_response(200, result, "OK", total=len(result))
