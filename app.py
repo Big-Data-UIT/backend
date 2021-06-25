@@ -50,7 +50,45 @@ def getMovieList():
     return jsonify(result)
 
 
-@app.route("/movie/ratings", methods=["GET", "POST"])
+@app.route("/unrated-movie", methods=["GET"])
+def getUnratedUserByUserId():
+    coll = db["movies_new"]
+    rating_col = db["ratings"]
+    limit = int(request.args.get("limit")) if (
+        request.args.get("limit")) else 100
+    offset = int(request.args.get("offset")) if (
+        request.args.get("offset")) else 0
+    userId = request.args.get("userId")
+    if userId:
+        ratedUser = rating_col.find({"userId": userId}, {"_id": False})
+        ratedMovieId = [x["movieId"] for x in ratedUser]
+        result = list(coll.find(
+            {"movieId": {"$nin": ratedMovieId}}, {'_id': False}).skip(offset).limit(limit))
+        totalDocument = coll.count()
+        return make_api_response(
+            200, result, "Lấy danh sách phim thành công", total=totalDocument)
+    else:
+        return make_api_response(
+            401, result, "userId không hợp lệ")
+
+
+@ app.route("/convert", methods=["GET"])
+def convert():
+    coll = db["ratings_copy"]
+    data = coll.find({})
+    for item in data:
+        item["rating"] = float(item["rating"])
+        coll.save(item)
+    return make_api_response(200, [], "OK")
+
+
+# @app.route("/user/ratings", methods=["GET"])
+# def getUserRatingHistory():
+#     coll = db["ratings"]
+#     data = coll.find({})
+
+
+@ app.route("/movie/ratings", methods=["GET", "POST"])
 def getMovieRatings():
     coll = db["ratings"]
     if (request.method == "GET"):
