@@ -88,8 +88,9 @@ def getUnratedUserByUserId():
 @app.route("/ratings-avg", methods=["GET"])
 def getUserRatingHistory():
     coll = db[COL_RATINGS]
+    limit = int(request.args.get("limit"))
     data = list(coll.aggregate([{"$group": {"_id": "$movieId", "averageRating": {
-                "$avg": "$rating"}}}, {"$sort": {"averageRating": -1}}]))
+                "$avg": "$rating"}}}, {"$sort": {"averageRating": -1}}, {"$limit": limit if limit else 100}]))
     return make_api_response(200, data, "OK", total=len(data))
 
 
