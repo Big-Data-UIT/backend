@@ -94,7 +94,29 @@ def getUserRatingHistory():
     return make_api_response(200, data, "OK", total=len(data))
 
 
-@ app.route("/movie/ratings", methods=["GET", "POST"])
+@app.route("/user/ratings", methods=["GET"])
+def getRatingsByUser():
+    coll = db[COL_MOVIES]
+    rating_col = db[COL_RATINGS]
+    limit = int(request.args.get("limit")) if (
+        request.args.get("limit")) else 100
+    offset = int(request.args.get("offset")) if (
+        request.args.get("offset")) else 0
+    userId = request.args.get("userId")
+    if userId:
+        ratedUser = rating_col.find({"userId": userId}, {"_id": False})
+        ratedMovieId = [x["movieId"] for x in ratedUser]
+        result = list(coll.find(
+            {"movieId": {"$in": ratedMovieId}}, {'_id': False}).skip(offset).limit(limit))
+        totalDocument = coll.count()
+        return make_api_response(
+            200, result, "Lấy danh sách phim thành công", total=totalDocument)
+    else:
+        return make_api_response(
+            401, result, "userId không hợp lệ")
+
+
+@app.route("/movie/ratings", methods=["GET", "POST"])
 def getMovieRatings():
     coll = db[COL_RATINGS]
     if (request.method == "GET"):
