@@ -44,7 +44,7 @@ def getMovieList():
     listResult = []
     for doc in resultCursor:
         listResult.append(doc)
-    totalDocument = len(listResult)
+    totalDocument = coll.count()
     result = make_api_response(
         "OK", listResult, "Lấy danh sách phim thành công", total=totalDocument)
     return jsonify(result)
@@ -59,7 +59,7 @@ def getMovieRatings():
             "movieId": movieId
         }
         result = list(coll.find({"movieId": movieId}, {"_id": False}))
-        total = len(result)
+        total = coll.count()
         result = make_api_response(
             "OK", result, "Lay danh sach danh gia thanh cong", total=total)
         return jsonify(result)
