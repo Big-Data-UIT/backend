@@ -139,16 +139,31 @@ def getMovieRatings():
 # @app.route("/user/ratings")
 
 
-# @app.route("/user/recommend", methods=["GET"])
-# def getUserRecommendation():
-#     # readFromMongo(COL_RATINGS, spark)
-#     # return make_api_response(200, [], "OK")
+@app.route("/user/recommend", methods=["GET"])
+def getUserRecommendation():
+    coll = db["recommendation"]
+    collMovies = db[COL_MOVIES]
+    userId = request.args.get("userId")
+    print(userId)
+    if userId:
+        result = coll.find({"UserId": userId}, {"_id": False})
+        recMovies = [x["Recommendation"] for x in result]
+        print(recMovies)
+        movies = []
+        for movieId in recMovies[0]:
+            movie = list(collMovies.find({"movieId": movieId}, {"_id": False}))
+            movies.append(movie[0])
+        # movies = list(collMovies.find(
+        #     {"movieId": {"$in": recMovies[0]}}, {"_id": False})))
+        return make_api_response(200, movies, "OK", total=len(movies))
+    else:
+        return make_api_response(200, [], "OK", total=0)
 
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 
-@app.route("/ratings", methods=["GET"])
+@ app.route("/ratings", methods=["GET"])
 def getAllRatings():
     coll = db[COL_RATINGS]
     limit = int(request.args.get("limit")) if "limit" in request.args else None
@@ -156,7 +171,7 @@ def getAllRatings():
     return make_api_response(200, result, "OK", total=len(result))
 
 
-@socketio.on('connect')
+@ socketio.on('connect')
 def test_connect():
     emit('my response', {'data': 'Connected'})
 
