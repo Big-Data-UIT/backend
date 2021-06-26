@@ -148,14 +148,16 @@ def getUserRecommendation():
     if userId:
         result = coll.find({"UserId": userId}, {"_id": False})
         recMovies = [x["Recommendation"] for x in result]
-        print(recMovies)
-        movies = []
-        for movieId in recMovies[0]:
-            movie = list(collMovies.find({"movieId": movieId}, {"_id": False}))
-            movies.append(movie[0])
-        # movies = list(collMovies.find(
-        #     {"movieId": {"$in": recMovies[0]}}, {"_id": False})))
-        return make_api_response(200, movies, "OK", total=len(movies))
+        if len(recMovies[0]) > 0:
+            movies = []
+            for movieId in recMovies[0]:
+                movie = list(collMovies.find(
+                    {"movieId": movieId}, {"_id": False}))
+                movies.append(movie[0])
+            # movies = list(collMovies.find(
+            #     {"movieId": {"$in": recMovies[0]}}, {"_id": False})))
+            return make_api_response(200, movies, "OK", total=len(movies))
+        else return make_api_response(200, [], "OK", total=0)
     else:
         return make_api_response(200, [], "OK", total=0)
 

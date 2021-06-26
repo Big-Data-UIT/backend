@@ -160,14 +160,14 @@ class CF:
         self.ratings = ratings
 
 
-if __name__ == "__main__":
-    spark = getOrCreateSparkSession("mongo")
-    df = readFromMongo("ratings_copy", spark)
-    df = df.drop("_id")
-    df = df.drop("timestamp")
-    df = df[['userId', 'movieId', 'rating']]
-    df.withColumn("movieId", df.movieId.cast('string'))
-    cf = CF(spark, df)
-    result = cf.processRecommendations()
-    # print(result)
-    writeToMongo(spark, result, "recommendation")
+# if __name__ == "__main__":
+#     spark = getOrCreateSparkSession("mongo")
+#     df = readFromMongo("ratings_copy", spark)
+#     df = df.drop("_id")
+#     df = df.drop("timestamp")
+#     df = df[['userId', 'movieId', 'rating']]
+#     df.withColumn("movieId", df.movieId.cast('string'))
+#     cf = CF(spark, df)
+#     result = cf.processRecommendations()
+#     # print(result)
+#     writeToMongo(spark, result, "recommendation")

@@ -16,6 +16,11 @@ def readFromMongo(collection, spark):
     return df
 
 
+def writeDfToMongo(spark, data, collection):
+    data.write.format("mongo").mode("append").option(
+        "uri", MONGO_URI+".recommendation").save()
+
+
 def writeToMongo(spark, data, collection):
     if data and spark and collection:
         schema = StructType([
