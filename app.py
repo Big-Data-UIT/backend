@@ -157,7 +157,8 @@ def getUserRecommendation():
             # movies = list(collMovies.find(
             #     {"movieId": {"$in": recMovies[0]}}, {"_id": False})))
             return make_api_response(200, movies, "OK", total=len(movies))
-        else return make_api_response(200, [], "OK", total=0)
+        else:
+            return make_api_response(200, [], "OK", total=0)
     else:
         return make_api_response(200, [], "OK", total=0)
 
