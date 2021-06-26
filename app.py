@@ -148,7 +148,8 @@ def getUserRecommendation():
     if userId:
         result = coll.find({"UserId": userId}, {"_id": False})
         recMovies = [x["Recommendation"] for x in result]
-        if len(recMovies[0]) > 0:
+        print(recMovies)
+        if len(recMovies) > 0:
             movies = []
             for movieId in recMovies[0]:
                 movie = list(collMovies.find(
