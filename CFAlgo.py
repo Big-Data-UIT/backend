@@ -1,8 +1,10 @@
-from import_mongo import importDataToMongo
+from import_mongo import importDataToMongo, writeToMongo
 from math import sqrt
 from itertools import combinations
 import random
 from pyspark import SparkContext
+from import_mongo import readFromMongo
+from utils import getOrCreateSparkSession
 from pyspark.sql import SparkSession
 # import findspark
 
@@ -134,7 +136,10 @@ class CF:
         user_sims = key_firstUser.map(
             lambda p: nearestNeighbors(p[0], list(p[1]), 50))
 
+        user_item_history = rdd.map(parseVectorOnUser).groupByKey().collect()
+
         ui_dict = {}
+
         for (user, items) in user_item_history:
             ui_dict[user] = items
 
@@ -148,4 +153,21 @@ class CF:
         return self.user_item_recs
 
     def getRecommendationList(self):
+        self.processRecommendations()
         return self.user_item_recs
+
+    def setRatings(self, ratings):
+        self.ratings = ratings
+
+
+if __name__ == "__main__":
+    spark = getOrCreateSparkSession("mongo")
+    df = readFromMongo("ratings_copy", spark)
+    df = df.drop("_id")
+    df = df.drop("timestamp")
+    df = df[['userId', 'movieId', 'rating']]
+    df.withColumn("movieId", df.movieId.cast('string'))
+    cf = CF(spark, df)
+    result = cf.processRecommendations()
+    # print(result)
+    writeToMongo(spark, result, "recommendation")

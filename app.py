@@ -22,11 +22,6 @@ TOPIC_NAME = "movies"
 
 COL_MOVIES = "movies_new"
 COL_RATINGS = "ratings_copy"
-# spark = SparkSession.builder.appName("SimpleApp")\
-#     .config("spark.mongodb.input.uri", "mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
-#     .config("spark.mongodb.output.uri", "mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
-#     .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.0")\
-#     .getOrCreate()
 
 
 @app.route("/", methods=["GET"])
@@ -144,10 +139,10 @@ def getMovieRatings():
 # @app.route("/user/ratings")
 
 
-@app.route("/user/recommend", methods=["GET"])
-def getUserRecommendation():
-    readFromMongo(COL_RATINGS, {}, spark)
-    return make_api_response(200, [], "OK")
+# @app.route("/user/recommend", methods=["GET"])
+# def getUserRecommendation():
+#     # readFromMongo(COL_RATINGS, spark)
+#     # return make_api_response(200, [], "OK")
 
 
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -161,7 +156,7 @@ def getAllRatings():
     return make_api_response(200, result, "OK", total=len(result))
 
 
-@ socketio.on('connect')
+@socketio.on('connect')
 def test_connect():
     emit('my response', {'data': 'Connected'})
 
