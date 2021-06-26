@@ -100,7 +100,8 @@ def getRatingsByUser():
     userId = request.args.get("userId")
     if userId:
         ratedUser = rating_col.find({"userId": userId}, {"_id": False})
-        ratedMovieId = [x["movieId"] for x in ratedUser]
+        ratedMovieId = [str(x["movieId"]) for x in ratedUser]
+        # print(ratedMovieId)
         result = list(coll.find(
             {"movieId": {"$in": ratedMovieId}}, {'_id': False}).skip(offset).limit(limit))
         totalDocument = coll.count()
