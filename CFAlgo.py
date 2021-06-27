@@ -134,7 +134,7 @@ class CF:
             lambda p: keyOnFirstUser(p[0], p[1])).groupByKey()
 
         user_sims = key_firstUser.map(
-            lambda p: nearestNeighbors(p[0], list(p[1]), 50))
+            lambda p: nearestNeighbors(p[0], list(p[1]), 100))
 
         user_item_history = rdd.map(parseVectorOnUser).groupByKey().collect()
 
@@ -147,7 +147,7 @@ class CF:
         uib = sc.broadcast(ui_dict)
 
         user_item_recs = user_sims.map(
-            lambda p: topNRecommendations(p[0], p[1], uib.value, 100)).collect()
+            lambda p: topNRecommendations(p[0], p[1], uib.value, 500)).collect()
 
         self.user_item_recs = user_item_recs
         return self.user_item_recs

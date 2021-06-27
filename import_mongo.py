@@ -16,9 +16,14 @@ def readFromMongo(collection, spark):
     return df
 
 
-def writeDfToMongo(spark, data, collection):
-    data.write.format("mongo").mode("append").option(
-        "uri", MONGO_URI+".recommendation").save()
+def writeDfToMongo(data, epoch_id):
+    schema = StructType([
+        StructField('movieId', IntegerType(), True),
+        StructField('rating', IntegerType(), True),
+        StructField('userId', StringType(), True),
+    ])
+    data.select("document.*").write.format("mongo").mode("append").option(
+        "uri", MONGO_URI+".ratings_copy").save()
 
 
 def writeToMongo(spark, data, collection):
@@ -30,5 +35,5 @@ def writeToMongo(spark, data, collection):
 
         dtf = spark.createDataFrame(data, schema)
         dtf.show()
-        dtf.write.format("mongo").option(
-            "uri", MONGO_URI+".recommendation").save()
+        dtf.write.format("mongo").mode("overwrite").option(
+            "uri", MONGO_URI+".recommendations").save()

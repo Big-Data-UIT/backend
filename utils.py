@@ -23,11 +23,10 @@ def getOrCreateSparkSession(type):
             .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.0")\
             .getOrCreate()
     if type == "full":
-        spark = SparkSession.builder.appName("SimpleApp")\
-            .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2")\
+        spark = SparkSession.builder.appName("SimpleAppFull")\
             .config("spark.mongodb.input.uri", "mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
             .config("spark.mongodb.output.uri", "mongodb+srv://carie_admin:carie.admin@cluster0.fteep.mongodb.net/movielens.movies")\
-            .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.0")\
+            .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.mongodb.spark:mongo-spark-connector_2.12:3.0.0")\
             .getOrCreate()
     return spark
 
